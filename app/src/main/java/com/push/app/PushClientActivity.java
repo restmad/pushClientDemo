@@ -1,6 +1,7 @@
 package com.push.app;
 
 import android.content.Intent;
+import android.os.BatteryManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;

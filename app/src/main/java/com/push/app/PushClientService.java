@@ -18,12 +18,11 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 
-public class PushClientService extends Service {
+public class PushClientService extends Service implements PushCallBack{
 
-    private final static String BASESERVERURL = "http://192.168.1.114:3000";
+    private final static String BASESERVERURL = "https://pushserver-xiaominfc-2.c9.io";//"http://192.168.1.114:3000";
 
     Socket socket = null;
-
 
     public PushClientService() {
 
@@ -46,13 +45,7 @@ public class PushClientService extends Service {
         super.onStart(intent, startId);
         if(socket == null) {
             initClientSocket();
-            bindPushEvent(new CallBack() {
-                @Override
-                public void callback(String content) {
-                    System.out.println(content);
-                    showNotification(content);
-                }
-            });
+            bindPushEvent(this);
         }
 
         if(!socket.connected()) {
@@ -60,7 +53,14 @@ public class PushClientService extends Service {
         }
     }
 
-    private void bindPushEvent(CallBack callBack){
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Intent intent = new Intent(this,PushClientService.class);
+        this.startService(intent);
+    }
+
+    private void bindPushEvent(PushCallBack callBack){
         bindListenerForEvent("message",new PushEventListener(callBack));
     }
 
@@ -77,11 +77,18 @@ public class PushClientService extends Service {
             try {
                 msg.put("uname","xiaominfc");
                 msg.put("pword","123456");
+                //msg.put("imei",getIdentification());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
             socket.emit("register", msg.toString());
+        }
+    }
+
+    private void answerId(String id) {
+        if(null != socket) {
+            socket.emit("answer", id);
         }
     }
 
@@ -139,8 +146,8 @@ public class PushClientService extends Service {
                 this.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
 
         // 定义Notification的各种属性
-        Notification notification =new Notification(R.drawable.ic_launcher,
-                "督导系统", System.currentTimeMillis());
+        Notification notification = new Notification(R.drawable.ic_launcher,
+                "新信息", System.currentTimeMillis());
         //FLAG_AUTO_CANCEL   该通知能被状态栏的清除按钮给清除掉
         //FLAG_NO_CLEAR      该通知不能被状态栏的清除按钮给清除掉
         //FLAG_ONGOING_EVENT 通知放置在正在运行
@@ -170,11 +177,27 @@ public class PushClientService extends Service {
         notificationManager.notify(0, notification);
     }
 
+    @Override
+    public void callback(String content) {
+        System.out.println(content);
+
+        try {
+            JSONObject json = new JSONObject(content);
+            String id = json.getString("_id");
+            answerId(id);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        showNotification(content);
+    }
+
+
     public class PushEventListener implements Emitter.Listener{
 
-        private CallBack mCallback;
+        private PushCallBack mCallback;
 
-        public PushEventListener(CallBack callBack){
+        public PushEventListener(PushCallBack callBack){
             mCallback = callBack;
         }
 
@@ -187,7 +210,4 @@ public class PushClientService extends Service {
         }
     }
 
-    public interface  CallBack {
-        public void callback(String content);
-    }
 }
