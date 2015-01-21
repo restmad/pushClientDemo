@@ -22,6 +22,10 @@ public class PushClientService extends Service implements PushCallBack{
 
     private final static String BASESERVERURL = "https://pushserver-xiaominfc-2.c9.io";//"http://192.168.1.114:3000";
 
+    private final static String LOGiNACTION = "login";
+    private final static String ANSWERCTION = "answer";
+
+
     Socket socket = null;
 
     public PushClientService() {
@@ -75,14 +79,14 @@ public class PushClientService extends Service implements PushCallBack{
 
             JSONObject msg = new JSONObject();
             try {
-                msg.put("uname","xiaominfc");
+                msg.put("uname","xiaomin");
                 msg.put("pword","123456");
                 //msg.put("imei",getIdentification());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
-            socket.emit("register", msg.toString());
+            socket.emit(LOGiNACTION, msg.toString());
         }
     }
 
