@@ -191,6 +191,7 @@ public class PushClientService extends Service implements PushCallBack{
             JSONObject json = new JSONObject(content);
             String id = json.getString("_id");
             answerId(id);
+            content = json.getString("msg");
         } catch (JSONException e) {
             e.printStackTrace();
         }
