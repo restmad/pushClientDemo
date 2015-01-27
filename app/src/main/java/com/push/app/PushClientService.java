@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.IBinder;
 import android.telephony.TelephonyManager;
 
@@ -79,8 +80,9 @@ public class PushClientService extends Service implements PushCallBack{
 
             JSONObject msg = new JSONObject();
             try {
-                msg.put("uname","xiaomin");
+                msg.put("uname","xiaominfc");
                 msg.put("pword","123456");
+                msg.put("client", Build.MODEL);
                 //msg.put("imei",getIdentification());
             } catch (JSONException e) {
                 e.printStackTrace();
